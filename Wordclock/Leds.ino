@@ -63,7 +63,7 @@ void ledSetup() {
 void nblendU8TowardU8( uint8_t& cur, const uint8_t target, uint8_t amount)
 {
   if( cur == target) return;
-  
+
   if( cur < target ) {
     uint8_t delta = target - cur;
     delta = scale8_video( delta, amount);
@@ -140,14 +140,14 @@ void ledFadeToAssignedColors() {
 }
 
 void ledScrollIntro() {
-  if ((millis() - ledScrollTime) > 250) {  
+  if ((millis() - ledScrollTime) > 250) {
     ledScrollTime = millis();
-    
+
     for(int y = 0; y < 5; y++) {
       for(int x = 0; x < sizeof(ledMatrix[y]); x++) {
-        uint8_t isActive = ((x + ledScrollPosition < sizeof(startupText[y])) && (x + ledScrollPosition >= 0)) ? 
+        uint8_t isActive = ((x + ledScrollPosition < sizeof(startupText[y])) && (x + ledScrollPosition >= 0)) ?
           startupText[y][x + ledScrollPosition] : 0;
-          
+
         CRGB color = isActive ? CRGB(255, 25, 0) : CRGB::Black;
         uint8_t position = ledMatrix[y + 2][x];
         leds[position] = color;
@@ -179,7 +179,7 @@ void ledShowClockface() {
     if (word.isActive(hour() % 12, minute())) {
       for(int pos : word.leds) {
         if (config.ledMode != words) {
-          targetColors[pos] = color; 
+          targetColors[pos] = color;
         } else {
           targetColors[pos].setHue(config.wordColors[word.colorCodeInTable]);
         }
@@ -208,7 +208,7 @@ void ledShowTestColor() {
       }
     }
   }
-  FastLED.show(ledBrightness());  
+  FastLED.show(ledBrightness());
 }
 
 void ledShowNoWifiStatus() {
@@ -219,7 +219,7 @@ void ledShowNoWifiStatus() {
       leds[i] = CRGB::Black;
     }
     leds[3] = CRGB::Blue;
-    FastLED.show(ledBrightness());  
+    FastLED.show(ledBrightness());
   }
 }
 
@@ -230,7 +230,7 @@ void ledShowNoNTPStatus() {
     }
     leds[3] = CRGB::Blue;
     leds[2] = CRGB::Blue;
-    FastLED.show(ledBrightness());  
+    FastLED.show(ledBrightness());
   }
 }
 
@@ -240,7 +240,7 @@ bool ledHasLDR() {
 
 void ledLoop() {
   long current = millis();
-  
+
   if ((current - ldrReadTime) > LDR_READ_DELAY) {
     ldrReadTime = current;
     ldrValue = analogRead(LDR_PIN);
@@ -249,14 +249,14 @@ void ledLoop() {
   bool isLedTestActive = ledTestTime > current;
   bool validNtpTime = timeStatus() != timeNotSet;
 
-  if ((current - ledRandomTime) > LED_RAINBOW_TIME) {  
+  if ((current - ledRandomTime) > LED_RAINBOW_TIME) {
     ledRandomTime = current;
     ledRandomHue++;
   }
-  
+
   switch(ledState) {
-    case 0: ledScrollIntro(); break;  
-    case 1: 
+    case 0: ledScrollIntro(); break;
+    case 1:
       if (isLedTestActive) {
         ledShowTestColor();
       } else if (wifiIsAccessPointActive()) {
@@ -264,7 +264,7 @@ void ledLoop() {
       } else if (!validNtpTime) {
         ledShowNoNTPStatus();
       } else {
-        ledShowClockface(); 
+        ledShowClockface();
         ledFadeToAssignedColors();
       }
       break;

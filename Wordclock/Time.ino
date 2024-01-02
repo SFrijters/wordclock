@@ -5,7 +5,7 @@
 #define NTP_RETRY_INTERVAL  60
 
 const int NTP_PACKET_SIZE = 48;
-byte packetBuffer[NTP_PACKET_SIZE]; 
+byte packetBuffer[NTP_PACKET_SIZE];
 WiFiUDP udp;
 const int timeZone = 1;
 
@@ -14,7 +14,7 @@ const int timeZone = 1;
 bool isDST(int d, int m, int y) {
   bool dst = false;
   dst = (m > 3 && m < 10); // October-March
-  
+
   if (m == 3){
     // Last sunday of March
     dst = (d >= ((31 - (5 * y /4 + 4) % 7)));
@@ -22,7 +22,7 @@ bool isDST(int d, int m, int y) {
     // Last sunday of October
     dst = (d < ((31 - (5 * y /4 + 1) % 7)));
   }
-  
+
   return dst;
 }
 
@@ -48,13 +48,13 @@ time_t adjustForDaylightSavingTime(time_t original_time) {
   } else if (isDST(day(original_time), month(original_time), year(original_time))) {
     return original_time + SECS_PER_HOUR;
   }
-                
-  return original_time;  
+
+  return original_time;
 }
 
 time_t getNtpTime() {
   IPAddress server_ip;
-    
+
   Serial.print("Retrieving time from NTP server ");
   Serial.println(config.ntp_server);
 
@@ -63,7 +63,7 @@ time_t getNtpTime() {
     setSyncInterval(NTP_RETRY_INTERVAL);
     return 0;
   }
-  
+
   Serial.print("IP: ");
   Serial.println(server_ip.toString());
 
@@ -77,7 +77,7 @@ time_t getNtpTime() {
   packetBuffer[13] = 0x4E;
   packetBuffer[14] = 49;
   packetBuffer[15] = 52;
-  udp.beginPacket(server_ip, 123); 
+  udp.beginPacket(server_ip, 123);
   udp.write(packetBuffer, NTP_PACKET_SIZE);
   udp.endPacket();
 
@@ -94,7 +94,7 @@ time_t getNtpTime() {
       secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
       secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
       secsSince1900 |= (unsigned long)packetBuffer[43];
-      
+
       // New time in seconds since Jan 1, 1970
       unsigned long newTime = secsSince1900 - 2208988800UL + timeZone * SECS_PER_HOUR;
       setSyncInterval(NTP_SYNC_INTERVAL);

@@ -26,17 +26,17 @@ void webserverSetup() {
   webserver.on("/api/led/brightness", apiSetBrightness);
   webserver.on("/api/resetSettings", apiResetSettings);
   webserver.on("/api/hostname", apiHostname);
-  
+
   webserver.onNotFound([]() {
     if (webserverHandleCaptivePortal()) return;
-    
+
     if (!webserverServeFileFromSPIFFS(webserver.uri()))
       webserver.send(404, "text/plain", "404: Not Found");
   });
 
   flashUpdateServer.setup(&webserver, String("/api/update/flash"));
   spiffsUpdateServer.setup(&webserver, String("/api/update/spiffs"));
-  webserver.begin();   
+  webserver.begin();
 }
 
 boolean webserverIsIp(String str) {
@@ -52,10 +52,10 @@ boolean webserverIsIp(String str) {
 bool webserverHandleCaptivePortal() {
   if (!webserverIsIp(webserver.hostHeader()) ) {
     Serial.println("Redirecting to captive portal");
-    
+
     webserver.sendHeader("Location", String("http://") + WiFi.softAPIP().toString(), true);
-    webserver.send (302, "text/plain", ""); 
-    webserver.client().stop(); 
+    webserver.send (302, "text/plain", "");
+    webserver.client().stop();
     return true;
   }
 
@@ -66,7 +66,7 @@ void webserverLoop() {
   webserver.handleClient();
 }
 
-String webserverGetContentType(String filename) { 
+String webserverGetContentType(String filename) {
   if(filename.endsWith(".htm")) return "text/html";
   else if(filename.endsWith(".html")) return "text/html";
   else if(filename.endsWith(".css")) return "text/css";
@@ -83,14 +83,14 @@ String webserverGetContentType(String filename) {
   return "text/html";
 }
 
-bool webserverServeFileFromSPIFFS(String path) { 
+bool webserverServeFileFromSPIFFS(String path) {
   Serial.println("handleFileRead: " + path);
   if(path.endsWith("/")) path += "index.html";
   String content_type = webserverGetContentType(path);
   String compressed_path = path + ".gz";
   if(SPIFFS.exists(compressed_path) || SPIFFS.exists(path)) {
     if(SPIFFS.exists(compressed_path)) path += ".gz";
-    File file = SPIFFS.open(path, "r"); 
+    File file = SPIFFS.open(path, "r");
     size_t sent = webserver.streamFile(file, content_type);
     file.close();
     Serial.println(String("\tSent file: ") + path);
@@ -103,14 +103,14 @@ bool webserverServeFileFromSPIFFS(String path) {
 void apiSendJSON(int status, JsonObject *object) {
   String json;
   object->printTo(json);
-  webserver.send(status, "application/json", json); 
+  webserver.send(status, "application/json", json);
   jsonBuffer.clear();
 }
 
 void apiSendJSONArray(int status, JsonArray *object) {
   String json;
   object->printTo(json);
-  webserver.send(status, "application/json", json); 
+  webserver.send(status, "application/json", json);
   jsonBuffer.clear();
 }
 
@@ -133,7 +133,7 @@ void apiStatus() {
   root["hostname"] = config.hostname;
 
   JsonObject& leds = root.createNestedObject("leds");
-  
+
   switch(config.ledMode) {
     case single: leds["mode"] = "single"; break;
     case words: leds["mode"] = "words"; break;
@@ -166,7 +166,7 @@ void apiStatus() {
 
   JsonObject &wifi = root.createNestedObject("wifi");
   wifi["accessPoint"] = wifiIsAccessPointActive() ? "active": "inactive";
-  
+
   switch(WiFi.status()) {
     case WL_IDLE_STATUS: wifi["status"] = "idle"; break;
     case WL_NO_SSID_AVAIL: wifi["status"] = "ssid_unavailable"; break;
@@ -239,7 +239,7 @@ void apiShowTestColor() {
 
 }
 
-void apiShowTestColorForWord() { 
+void apiShowTestColorForWord() {
   if (!webserver.hasArg("hue")) {
     apiSendError("Missing hue parameter");
     return;
@@ -258,7 +258,7 @@ void apiShowTestColorForWord() {
   ledTestWord = wordArg.toInt();
 
   apiSendOK();
-  
+
 }
 
 void apiSetWordColors() {
@@ -268,7 +268,7 @@ void apiSetWordColors() {
   for(int i = 0; i < 25; i++) {
     if (webserver.hasArg(argNames[i])) {
       String arg = webserver.arg(argNames[i]);
-      config.wordColors[i] = arg.toInt(); 
+      config.wordColors[i] = arg.toInt();
     }
   }
   saveConfiguration();
@@ -282,11 +282,11 @@ void apiSetHourlyColors() {
   for(int i = 0; i < 24; i++) {
     if (webserver.hasArg(argNames[i])) {
       String arg = webserver.arg(argNames[i]);
-      config.hourlyColors[i] = arg.toInt(); 
+      config.hourlyColors[i] = arg.toInt();
     }
   }
   saveConfiguration();
-  apiSendOK();  
+  apiSendOK();
 }
 
 void apiSetLedMode() {
@@ -356,7 +356,7 @@ void apiSetBrightness() {
   }
 
   saveConfiguration();
-  apiSendOK();  
+  apiSendOK();
 }
 
 void apiResetSettings() {
@@ -378,7 +378,7 @@ void apiHostname() {
 
   Serial.print("Updating mDNS hostname to ");
   Serial.println(hostname);
-  
+
   memcpy(config.hostname, hostname.c_str(), hostname.length() + 1);
   saveConfiguration();
 

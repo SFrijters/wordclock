@@ -20,7 +20,7 @@ access_point_status access_point_status = AP_OFF;
 long access_point_pending_action ;
 
 void wifiSetup() {
-  WiFi.begin();  
+  WiFi.begin();
 
   if (WiFi.SSID().length() == 0) {
     wifiActivateAccessPoint();
@@ -33,10 +33,10 @@ void wifiSetup() {
 
 void wifiLoop() {
   wl_status_t status = WiFi.status();
-  
+
   if (last_wifi_status != status) {
     last_wifi_status = status;
-    
+
     if (status == WL_CONNECTED) {
       WiFi.setAutoReconnect(true);
       Serial.print("Connected, IP address: ");
@@ -67,7 +67,7 @@ void wifiLoop() {
 void wifiConnect(String ssid, String password) {
   Serial.print("Connecting to ");
   Serial.println(ssid);
-  
+
   if (password.length() > 0) {
     WiFi.begin(ssid.c_str(), password.c_str());
   } else {
@@ -135,7 +135,7 @@ void wifiDelayedDeactivateAccessPoint() {
         access_point_status = AP_OFF;
         access_point_pending_action = 0;
         break;
-   } 
+   }
 }
 
 void wifiAccessPointDelayedAction() {
@@ -155,7 +155,7 @@ void updateKnownWifiNetworks(int networksFound)
 {
   updating_wifi_networks = false;
   last_wifi_network_update = millis();
-  
+
   Serial.printf("%d network(s) found\n", networksFound);
   for (int i = 0; i < min(networksFound, MAX_WIFI_NETWORKS); i++)
   {

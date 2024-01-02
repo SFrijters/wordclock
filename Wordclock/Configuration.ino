@@ -31,7 +31,7 @@ void loadConfiguration() {
 
 void loadDefaultConfiguration() {
   Serial.println("Loading default configuration");
-  
+
   char ntpServer[] = "nl.pool.ntp.org";
   memcpy(config.ntp_server, ntpServer, sizeof(ntpServer));
 
@@ -53,7 +53,7 @@ void loadDefaultConfiguration() {
 uint8_t calculateConfigChecksum() {
   uint8_t previousChecksum = config.checksum;
   config.checksum = 0;
-  
+
   unsigned char *data = (unsigned char *)&config;
   uint8_t checksum = sizeof(Configuration);
   for(int i = 0; i < sizeof(Configuration); i++) {

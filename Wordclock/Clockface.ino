@@ -77,7 +77,7 @@ bool quarter(int hour, int minute) {
       return true;
   }
 
-  return false;  
+  return false;
 }
 
 bool past(int hour, int minute) {
