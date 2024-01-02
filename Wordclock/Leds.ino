@@ -99,6 +99,9 @@ byte calculateTimeBrightness() {
         return constrain(
                 map(minute(), 0, 29, config.maxBrightness, config.minBrightness),
                 config.minBrightness, config.maxBrightness);
+    } else {
+        // Unreachable?
+        return 0;
     }
 }
 

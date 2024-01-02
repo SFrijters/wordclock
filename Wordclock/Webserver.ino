@@ -8,7 +8,11 @@ ESP8266WebServer webserver(80);
 StaticJsonBuffer<10000> jsonBuffer;
 
 ESP8266HTTPUpdateServer flashUpdateServer(true, U_FLASH);
+#ifdef ESP8266
+ESP8266HTTPUpdateServer spiffsUpdateServer(true, U_FS);
+#else
 ESP8266HTTPUpdateServer spiffsUpdateServer(true, U_SPIFFS);
+#endif
 
 void webserverSetup() {
   SPIFFS.begin();
