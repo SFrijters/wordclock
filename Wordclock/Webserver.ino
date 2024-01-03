@@ -21,19 +21,6 @@ void webserverSetup() {
 
   Serial.println("Mounted SPIFFS");
 
-  ShowInfo();
-
-  /* File root = SPIFFS.open("/", "r"); */
-
-  /* Serial.println("Opened root directory"); */
-
-  /* File file = root.openNextFile(); */
-  /* while (file) { */
-  /*   Serial.print("FILE: "); */
-  /*   Serial.println(file.name()); */
-  /*   file = root.openNextFile(); */
-  /* } */
-
   webserver.on("/api/status", apiStatus);
   webserver.on("/api/wifi/networks", apiWifiNetworks);
   webserver.on("/api/wifi/disconnect", apiWifiDisconnect);
@@ -58,40 +45,6 @@ void webserverSetup() {
   flashUpdateServer.setup(&webserver, String("/api/update/flash"));
   spiffsUpdateServer.setup(&webserver, String("/api/update/spiffs"));
   webserver.begin();
-}
-
-void ShowInfo(void){
-  FSInfo fs_info;
-  char bufferTemp[300];
-  SPIFFS.info(fs_info);
-  sprintf(bufferTemp,  "Total Bytes:     %d", fs_info.totalBytes);
-  Serial.println(bufferTemp);
-  sprintf(bufferTemp,  "Used Bytes:      %d", fs_info.usedBytes);
-  Serial.println(bufferTemp);
-  sprintf(bufferTemp,  "Block Size:      %d", fs_info.blockSize);
-  Serial.println(bufferTemp);
-  sprintf(bufferTemp,  "Page Size:       %d", fs_info.pageSize);
-  Serial.println(bufferTemp);
-  sprintf(bufferTemp,  "Max open files:  %d", fs_info.maxOpenFiles);
-  Serial.println(bufferTemp);
-  sprintf(bufferTemp,  "Max path length: %d", fs_info.maxPathLength);
-  Serial.println(bufferTemp);
-  Serial.println("");
-}
-
-void ShowDIR(void) {
-  Serial.println("\n--------------------------------");
-  Serial.println("Directory:");
-  Dir dir = SPIFFS.openDir("");
-
-  while (dir.next()) {
-    Serial.print(dir.fileName());
-    File f = dir.openFile("r");
-    Serial.print("\t\t");
-    Serial.println(f.size());
-  }
-  Serial.println("--------------------------------");
-  Serial.println("");
 }
 
 boolean webserverIsIp(String str) {

@@ -69,8 +69,6 @@ void wifiConnect(String ssid, String password) {
   Serial.println(ssid);
 
   if (password.length() > 0) {
-    Serial.print("Using password ");
-    Serial.println(password);
     WiFi.begin(ssid.c_str(), password.c_str());
   } else {
     WiFi.begin(ssid.c_str());
