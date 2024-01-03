@@ -144,6 +144,7 @@ void ledFadeToAssignedColors() {
 
 void ledScrollIntro() {
   if ((millis() - ledScrollTime) > 250) {
+    Serial.println("ledScrollIntro");
     ledScrollTime = millis();
 
     for(int y = 0; y < 5; y++) {
@@ -165,6 +166,7 @@ void ledScrollIntro() {
 }
 
 void ledShowClockface() {
+  Serial.println("ledShowClockface");
   time_t t = now();
 
   for(int i = 0; i < NUM_LEDS; i++) {
@@ -192,6 +194,7 @@ void ledShowClockface() {
 }
 
 void ledShowTestColor() {
+  Serial.println("ledShowTestColor");
   for(int i = 0; i < NUM_LEDS; i++) {
     leds[i] = CRGB::Black;
   }
@@ -216,6 +219,7 @@ void ledShowTestColor() {
 
 void ledShowNoWifiStatus() {
   if ((millis() - lastLedUpdate) > LED_UPDATE_TIME) {
+    Serial.println("ledShowNoWifiStatus");
     lastLedUpdate = millis();
 
     for(int i = 0; i < NUM_LEDS; i++) {
@@ -228,6 +232,7 @@ void ledShowNoWifiStatus() {
 
 void ledShowNoNTPStatus() {
   if ((millis() - lastLedUpdate) > LED_UPDATE_TIME) {
+    Serial.println("ledShowNoNTPStatus");
     for(int i = 0; i < NUM_LEDS; i++) {
       leds[i] = CRGB::Black;
     }

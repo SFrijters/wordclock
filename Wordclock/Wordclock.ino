@@ -72,16 +72,23 @@ Configuration config;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  delay(10000);                       // wait for a second
   Serial.print("BITLAIR Wordclock, v");
   Serial.println(version);
   Serial.print("ESP ID: ");
   Serial.println(String(ESP.getChipId()));
 
+  Serial.println("configurationSetup");
   configurationSetup();
+  Serial.println("wifiSetup");
   wifiSetup();
+  Serial.println("webserverSetup");
   webserverSetup();
+  Serial.println("timeSetup");
   timeSetup();
+  Serial.println("ledSetup");
   ledSetup();
+  Serial.println("Setup complete");
 }
 
 void loop() {

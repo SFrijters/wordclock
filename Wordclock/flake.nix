@@ -15,6 +15,12 @@
           inherit system;
         };
 
+        python = pkgs.python3;
+
+        pythonWithExtras = python.buildEnv.override {
+          extraLibs = [ ];
+        };
+
         # The variables starting with underscores are custom,
         # the ones starting with ARDUINO are used by arduino-cli.
         # See https://arduino.github.io/arduino-cli/0.33/configuration/ .
@@ -43,6 +49,9 @@
             git          # For embedding a version hash into the sketch
             gnumake      # To provide somewhat standardized commands to compile, upload, and monitor the sketch
             picocom      # To monitor the serial output
+            pythonWithExtras  # So that the python3 wrapper of the esp8266 downloaded code can find a working python interpreter on the path
+            esptool
+            mkspiffs-presets.arduino-esp8266
           ];
           shellHook = ''
             ${arduinoShellHookPaths}

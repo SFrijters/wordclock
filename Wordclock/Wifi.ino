@@ -69,6 +69,8 @@ void wifiConnect(String ssid, String password) {
   Serial.println(ssid);
 
   if (password.length() > 0) {
+    Serial.print("Using password ");
+    Serial.println(password);
     WiFi.begin(ssid.c_str(), password.c_str());
   } else {
     WiFi.begin(ssid.c_str());
@@ -87,6 +89,7 @@ void wifiActivateAccessPoint() {
       String ssid = "WordClock-" + String(ESP.getChipId());
       access_point_status = WiFi.softAP(ssid.c_str()) ? AP_ON : AP_OFF;
 
+      Serial.print("Website available at ");
       Serial.println(WiFi.softAPIP());
 
       dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
@@ -102,18 +105,18 @@ void wifiActivateAccessPoint() {
 }
 
 void wifiDelayedActivateAccessPoint() {
-   switch(access_point_status) {
-      case AP_OFF:
-        Serial.println("Scheduled access point activation");
-        access_point_status = AP_PENDING_ON;
-        access_point_pending_action = millis() + 10000;
-        break;
-      case AP_PENDING_OFF:
-        Serial.println("Cancelled pending deactivation of access point");
-        access_point_status = AP_ON;
-        access_point_pending_action = 0;
-        break;
-   }
+  switch(access_point_status) {
+    case AP_OFF:
+      Serial.println("Scheduled access point activation");
+      access_point_status = AP_PENDING_ON;
+      access_point_pending_action = millis() + 10000;
+      break;
+    case AP_PENDING_OFF:
+      Serial.println("Cancelled pending deactivation of access point");
+      access_point_status = AP_ON;
+      access_point_pending_action = 0;
+      break;
+  }
 }
 
 void wifiDeactivateAccessPoint() {
@@ -124,18 +127,18 @@ void wifiDeactivateAccessPoint() {
 }
 
 void wifiDelayedDeactivateAccessPoint() {
-   switch(access_point_status) {
-      case AP_ON:
-        Serial.println("Scheduled access point deactivation");
-        access_point_status = AP_PENDING_OFF;
-        access_point_pending_action = millis() + 10000;
-        break;
-      case AP_PENDING_ON:
-        Serial.println("Cancelled pending activation of access point");
-        access_point_status = AP_OFF;
-        access_point_pending_action = 0;
-        break;
-   }
+  switch(access_point_status) {
+    case AP_ON:
+      Serial.println("Scheduled access point deactivation");
+      access_point_status = AP_PENDING_OFF;
+      access_point_pending_action = millis() + 10000;
+      break;
+    case AP_PENDING_ON:
+      Serial.println("Cancelled pending activation of access point");
+      access_point_status = AP_OFF;
+      access_point_pending_action = 0;
+      break;
+  }
 }
 
 void wifiAccessPointDelayedAction() {
@@ -151,14 +154,12 @@ void wifiAccessPointDelayedAction() {
   access_point_pending_action = 0;
 }
 
-void updateKnownWifiNetworks(int networksFound)
-{
+void updateKnownWifiNetworks(int networksFound) {
   updating_wifi_networks = false;
   last_wifi_network_update = millis();
 
   Serial.printf("%d network(s) found\n", networksFound);
-  for (int i = 0; i < min(networksFound, MAX_WIFI_NETWORKS); i++)
-  {
+  for (int i = 0; i < min(networksFound, MAX_WIFI_NETWORKS); i++) {
     WiFi.SSID(i).toCharArray(known_wifi_networks[i].ssid, MAX_SSID_LENGTH);
     known_wifi_networks[i].channel = WiFi.channel(i);
     known_wifi_networks[i].encryptionType = WiFi.encryptionType(i);
