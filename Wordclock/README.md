@@ -5,9 +5,9 @@
 * Enter a development shell via `nix develop`.
 
 * Run `make` with a subcommand or plain `make` to do all of the following in order:
-** `make spiffs`: Prepare and flash the SPIFFS that contains the website files.
-** `make compile`: Compile the sketch.
-** `make upload`: Upload the sketch.
+    * `make spiffs`: Prepare and flash the SPIFFS that contains the website files.
+    * `make compile`: Compile the sketch.
+    * `make upload`: Upload the sketch.
 
 * (optional) Run `make monitor` to attach a serial monitor. Detach using `[C-a] [C-x]`.
 
