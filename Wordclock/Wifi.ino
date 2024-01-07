@@ -51,6 +51,7 @@ void wifiLoop() {
       Serial.print("New WiFi status: ");
       Serial.println(status);
     }
+    wifiPrintStatus(status);
   }
 
   if (!updating_wifi_networks) {
@@ -62,6 +63,39 @@ void wifiLoop() {
 
   wifiAccessPointDelayedAction();
   dnsServer.processNextRequest();
+}
+
+void wifiPrintStatus(wl_status_t status) {
+  if (status == WL_NO_SHIELD) {
+    Serial.println(F("\n WiFI.status == NO_SHIELD"));
+  }
+  else if (status == WL_IDLE_STATUS) {
+    Serial.println(F("\n WiFI.status == IDLE_STATUS"));
+  }
+  else if (status == WL_NO_SSID_AVAIL) {
+    Serial.println(F("\n WiFI.status == NO_SSID_AVAIL"));
+  }
+  else if (status == WL_SCAN_COMPLETED) {
+    Serial.println(F("\n WiFI.status == SCAN_COMPLETED"));
+  }
+  else if (status == WL_CONNECTED) {
+    Serial.println(F("\n WiFI.status == CONNECTED"));
+  }
+  else if (status == WL_CONNECT_FAILED) {
+    Serial.println(F("\n WiFI.status == CONNECT_FAILED"));
+  }
+  else if (status == WL_CONNECTION_LOST) {
+    Serial.println(F("\n WiFI.status == CONNECTION_LOST"));
+  }
+  else if (status == WL_WRONG_PASSWORD) {
+    Serial.println(F("\n WiFI.status == WRONG_PASSWORD"));
+  }
+  else if (status == WL_DISCONNECTED) {
+    Serial.println(F("\n WiFI.status == DISCONNECTED"));
+  }
+  else {
+    Serial.println(F("\n No appropriate Status available!"));
+  }
 }
 
 void wifiConnect(String ssid, String password) {

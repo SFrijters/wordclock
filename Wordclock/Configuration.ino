@@ -11,6 +11,7 @@ void configurationSetup() {
 void saveConfiguration() {
   Serial.println("Need to save configuration to EEPROM");
   config.checksum = calculateConfigChecksum();
+  printConfiguration();
   EEPROM.put(0, config);
   EEPROM.commit();
 }
@@ -27,6 +28,45 @@ void loadConfiguration() {
     Serial.println(expected_checksum);
     loadDefaultConfiguration();
   }
+  printConfiguration();
+}
+
+void printConfiguration() {
+  Serial.println("=== Configuration ===");
+  Serial.print("ntp_server: ");
+  Serial.println(config.ntp_server);
+  Serial.print("hostname: ");
+  Serial.println(config.hostname);
+  Serial.print("ledMode: ");
+  Serial.print(config.ledMode);
+  Serial.print(" = ");
+  Serial.println(ledModeStr[config.ledMode]);
+  Serial.print("singleColorHue: ");
+  Serial.println(config.singleColorHue);
+  Serial.println("hourlyColors");
+  for (int i = 0; i < sizeof(config.hourlyColors); ++i) { Serial.print(" "); Serial.print(config.hourlyColors[i]); }
+  Serial.println("");
+  Serial.println("wordColors");
+  for (int i = 0; i < sizeof(config.wordColors); ++i) { Serial.print(" "); Serial.print(config.wordColors[i]); }
+  Serial.println("");
+  Serial.print("brightnessMode: ");
+  Serial.print(config.brightnessMode);
+  Serial.print(" = ");
+  Serial.println(brightnessModeStr[config.brightnessMode]);
+  Serial.print("minBrightness: ");
+  Serial.println(config.minBrightness);
+  Serial.print("maxBrightness: ");
+  Serial.println(config.maxBrightness);
+  Serial.print("brightnessStartHour: ");
+  Serial.println(config.brightnessStartHour);
+  Serial.print("brightnessEndHour: ");
+  Serial.println(config.brightnessEndHour);
+  Serial.print("ssid: ");
+  Serial.println(config.ssid);
+  Serial.print("password: ");
+  Serial.println(config.password);
+  Serial.print("checksum: ");
+  Serial.println(config.checksum);
 }
 
 void loadDefaultConfiguration() {

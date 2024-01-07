@@ -33,17 +33,34 @@ struct WifiNetwork {
   bool isHidden;
 };
 
-enum LedMode {
-  single,
-  words,
-  hourly,
-  rainbow
+#define GENERATE_ENUM(ENUM) ENUM,
+#define GENERATE_STRING(STRING) #STRING,
+
+#define FOREACH_LEDMODE(FN) \
+        FN(single)          \
+        FN(words)           \
+        FN(hourly)          \
+        FN(rainbow)
+
+typedef enum {
+  FOREACH_LEDMODE(GENERATE_ENUM)
+} LedMode;
+
+static const char *ledModeStr[] = {
+  FOREACH_LEDMODE(GENERATE_STRING)
 };
 
-enum BrightnessMode {
-  fixedBrightness,
-  ldrBrightness,
-  timeBrightness
+#define FOREACH_BRIGHTNESSMODE(FN) \
+        FN(fixedBrightness)        \
+        FN(ldrBrightness)          \
+        FN(timeBrightness)
+
+typedef enum {
+  FOREACH_BRIGHTNESSMODE(GENERATE_ENUM)
+} BrightnessMode;
+
+static const char *brightnessModeStr[] = {
+  FOREACH_BRIGHTNESSMODE(GENERATE_STRING)
 };
 
 struct Configuration {
@@ -72,7 +89,7 @@ Configuration config;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
-  delay(10000);                       // wait for a second
+  delay(10000);                       // wait for ten seconds so we can get the monitor hooked up
   Serial.print("BITLAIR Wordclock, v");
   Serial.println(version);
   Serial.print("ESP ID: ");
