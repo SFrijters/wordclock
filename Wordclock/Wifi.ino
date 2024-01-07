@@ -41,8 +41,12 @@ void wifiLoop() {
       WiFi.setAutoReconnect(true);
       Serial.print("Connected, IP address: ");
       Serial.println(WiFi.localIP());
-      wifiDelayedDeactivateAccessPoint();
+      /* wifiDeactivateAccessPoint(); */
       timeSync();
+      webserver.close();
+      webserver.stop();
+      SPIFFS.end();
+      webserverSetup();
     } else if (WiFi.SSID().length() == 0) {
       wifiActivateAccessPoint();
     } else if ((status == WL_NO_SSID_AVAIL) || (status == WL_CONNECT_FAILED)) {
