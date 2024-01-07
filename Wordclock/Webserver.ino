@@ -228,8 +228,6 @@ void apiWifiConnect() {
   String ssid = webserver.arg("ssid");
   String password = webserver.arg("password");
 
-  wifiDeactivateAccessPoint();
-
   wifiConnect(ssid, password);
 
   JsonObject &root = jsonBuffer.createObject();

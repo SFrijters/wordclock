@@ -17,17 +17,16 @@ enum access_point_status {
 };
 
 access_point_status access_point_status = AP_OFF;
-long access_point_pending_action ;
+long access_point_pending_action;
 
 void wifiSetup() {
-  WiFi.begin();
+  String ssid = config.ssid;
+  String password = config.password;
 
-  if (WiFi.SSID().length() == 0) {
-    wifiActivateAccessPoint();
+  if (ssid.length() > 0) {
+    wifiConnect(ssid, password);
   } else {
-    Serial.print("Wifi configured, connecting to ");
-    Serial.println(WiFi.SSID());
-    wifiDeactivateAccessPoint();
+    wifiActivateAccessPoint();
   }
 }
 
@@ -103,18 +102,59 @@ void wifiPrintStatus(wl_status_t status) {
 }
 
 void wifiConnect(String ssid, String password) {
+  wl_status_t status = WiFi.status();
+
+  WiFi.disconnect(false);
+
+  if (access_point_status != AP_OFF) {
+      wifiDeactivateAccessPoint();
+  }
+
+  WiFi.hostname(config.hostname);
+
   Serial.print("Connecting to ");
   Serial.println(ssid);
-
-  ssid.toCharArray(config.ssid, sizeof(config.ssid));
-  password.toCharArray(config.password, sizeof(config.password));
-
-  printConfiguration();
-
   if (password.length() > 0) {
+    Serial.print("Using password ");
+#ifdef DEBUG_PASSWORD
+    Serial.println(password);
+#else
+    Serial.println("<redacted>");
+#endif
     WiFi.begin(ssid.c_str(), password.c_str());
   } else {
     WiFi.begin(ssid.c_str());
+  }
+  wifiPrintStatus(status);
+  delay(10000);
+  status = WiFi.status();
+  wifiPrintStatus(status);
+
+  if (status != WL_CONNECTED) {
+    if (ssid.length() > 0) {
+      Serial.println("Failed to connect to ");
+      Serial.println(WiFi.SSID());
+    }
+
+    String ssid_old = config.ssid;
+    String password_old = config.password;
+
+    if (ssid_old != ssid || password_old != password) {
+      Serial.println("Retrying with previous configuration");
+      wifiConnect(ssid_old, password_old);
+      return;
+    }
+
+    if (access_point_status != AP_ON) {
+      wifiActivateAccessPoint();
+    }
+  } else {
+    Serial.print("Wifi configured, connected to ");
+    Serial.println(WiFi.SSID());
+    Serial.println(WiFi.localIP());
+    ssid.toCharArray(config.ssid, sizeof(config.ssid));
+    password.toCharArray(config.password, sizeof(config.password));
+    saveConfiguration();
   }
 }
 

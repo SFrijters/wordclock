@@ -101,10 +101,10 @@ void setup() {
   configurationSetup();
   Serial.println("wifiSetup");
   wifiSetup();
-  Serial.println("webserverSetup");
-  webserverSetup();
   Serial.println("timeSetup");
   timeSetup();
+  Serial.println("webserverSetup");
+  webserverSetup();
   Serial.println("ledSetup");
   ledSetup();
   Serial.println("Setup complete");
@@ -112,7 +112,7 @@ void setup() {
 
 void loop() {
   wifiLoop();
-  webserverLoop();
   timeLoop();
+  webserverLoop();
   ledLoop();
 }

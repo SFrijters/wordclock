@@ -64,7 +64,11 @@ void printConfiguration() {
   Serial.print("ssid: ");
   Serial.println(config.ssid);
   Serial.print("password: ");
+#ifdef DEBUG_PASSWORD
   Serial.println(config.password);
+#else
+  Serial.println("<redacted>");
+#endif
   Serial.print("checksum: ");
   Serial.println(config.checksum);
 }
