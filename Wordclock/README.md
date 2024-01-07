@@ -24,4 +24,6 @@ From a WiFi-cabable device:
 
 After this, the Wordclock will disable its own access point features, and instead connect to the chosen network and - after getting the current time via NTP - act like a clock.
 
-To change the settings, power cycle the Wordclock and repeat these steps.
+You can now connect to the Wordclock using its IP address on your usual WiFi network, or the hostname 'woordklok'.
+
+The Wordclock stores the SSID/password in non-volatile memory, so it should reconnect after power cycling. If it can't, it will revert to acting as an access point.
