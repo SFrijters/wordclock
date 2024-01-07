@@ -73,10 +73,10 @@ void loadDefaultConfiguration() {
   Serial.println("Loading default configuration");
 
   char ntpServer[] = "nl.pool.ntp.org";
-  memcpy(config.ntp_server, ntpServer, sizeof(ntpServer));
+  strncpy(config.ntp_server, ntpServer, sizeof(ntpServer));
 
   char hostname[] = "woordklok";
-  memcpy(config.hostname, hostname, sizeof(hostname));
+  strncpy(config.hostname, hostname, sizeof(hostname));
 
   config.ledMode = single;
   config.singleColorHue = 13;
