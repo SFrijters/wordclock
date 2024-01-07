@@ -102,6 +102,11 @@ void wifiConnect(String ssid, String password) {
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
+  ssid.toCharArray(config.ssid, sizeof(config.ssid));
+  password.toCharArray(config.password, sizeof(config.password));
+
+  printConfiguration();
+
   if (password.length() > 0) {
     WiFi.begin(ssid.c_str(), password.c_str());
   } else {

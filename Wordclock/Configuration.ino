@@ -88,6 +88,9 @@ void loadDefaultConfiguration() {
   config.minBrightness = 65;
   config.brightnessStartHour = 8;
   config.brightnessEndHour = 22;
+  memset(config.ssid, 0, sizeof(config.ssid));
+  memset(config.password, 0, sizeof(config.password));
+  config.checksum = calculateConfigChecksum();
 }
 
 uint8_t calculateConfigChecksum() {

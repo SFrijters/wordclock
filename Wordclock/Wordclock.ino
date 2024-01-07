@@ -75,6 +75,8 @@ struct Configuration {
   uint8_t minBrightness;
   uint8_t brightnessStartHour;
   uint8_t brightnessEndHour;
+  char ssid[MAX_SSID_LENGTH + 1];
+  char password[256];
   uint8_t checksum;
 };
 
