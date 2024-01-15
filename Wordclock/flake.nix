@@ -31,15 +31,21 @@
 
         # The _ARDUINO_PYTHON3 variable is passed to arduino-cli via the Makefile.
         arduinoShellHookPaths = ''
-          if [ -z ''${XDG_CACHE_HOME:-} ]; then
-              export _ARDUINO_ROOT=$HOME/.arduino/${name}
-          else
-              export _ARDUINO_ROOT=$XDG_CACHE_HOME/arduino/${name}
+          if [ -z "''${_ARDUINO_PROJECT_DIR:-}" ]; then
+            if [ -n "''${_ARDUINO_ROOT_DIR:-}" ]; then
+              export _ARDUINO_PROJECT_DIR="''${_ARDUINO_ROOT_DIR}/${name}"
+            elif [ -n "''${XDG_CACHE_HOME:-}" ]; then
+              export _ARDUINO_PROJECT_DIR="''${XDG_CACHE_HOME}/arduino/${name}"
+            else
+              export _ARDUINO_PROJECT_DIR="''${HOME}/.arduino/${name}"
+            fi
           fi
-          export _ARDUINO_PYTHON3=${pkgs.python3}
-          export ARDUINO_DIRECTORIES_USER=$_ARDUINO_ROOT
-          export ARDUINO_DIRECTORIES_DATA=$_ARDUINO_ROOT
-          export ARDUINO_DIRECTORIES_DOWNLOADS=$_ARDUINO_ROOT/staging
+          # The variables below are respected by arduino-cli
+          export ARDUINO_DIRECTORIES_USER=$_ARDUINO_PROJECT_DIR
+          export ARDUINO_DIRECTORIES_DATA=$_ARDUINO_PROJECT_DIR
+          export ARDUINO_DIRECTORIES_DOWNLOADS=$_ARDUINO_PROJECT_DIR/staging
+          # This is used to override Python when invoking the Makefile
+          export _ARDUINO_PYTHON3=${python}
         '';
 
         devShellArduinoCLI = pkgs.mkShell {
@@ -56,20 +62,15 @@
           shellHook = ''
             ${arduinoShellHookPaths}
             echo "==> Using arduino-cli version $(arduino-cli version)"
-            echo "    Storing arduino-cli data for this project in '$_ARDUINO_ROOT'"
+            echo "    Storing arduino-cli data for this project in ''${_ARDUINO_PROJECT_DIR}"
           '';
         };
 
       in
         rec {
           devShells = {
-            inherit
-              devShellArduinoCLI
-            ;
+            default = devShellArduinoCLI;
           };
-
-          # Development shell spawned by `nix develop`
-          devShells.default = devShellArduinoCLI;
         }
     );
 }
