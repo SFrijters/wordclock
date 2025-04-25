@@ -1,5 +1,20 @@
 {
   "nodes": {
+    "arduino-nix": {
+      "locked": {
+        "lastModified": 1735332078,
+        "narHash": "sha256-PGZVUTg8BQKL1QgTr3Fcia8RBYYqsbHbx9lIunqdmxQ=",
+        "owner": "bouk",
+        "repo": "arduino-nix",
+        "rev": "dd6c6f4de7d8d8bb460508de911c120dfc35b709",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bouk",
+        "repo": "arduino-nix",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1731603435,
@@ -18,6 +33,7 @@
     },
     "root": {
       "inputs": {
+        "arduino-nix": "arduino-nix",
         "nixpkgs": "nixpkgs"
       }
     }

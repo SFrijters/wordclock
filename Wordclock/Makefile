@@ -4,10 +4,26 @@ SHELL=/usr/bin/env bash
 SERIAL=/dev/ttyUSB0
 # This should be in sync with whatever you set in the sketch via `Serial.begin(xxx);` (if you set it at all).
 BAUDRATE=115200
-# This references the profile name in sketch.yaml .
-PROFILE=wordclock
+FQBN=esp8266:esp8266:d1_mini
 
-.PHONY: all spiffs compile upload monitor
+VERBOSE=
+
+ROOT_DIR:=$(shell pwd)
+SKETCH_NAME:=$(shell basename $(ROOT_DIR))
+
+COMPILER_CPP_EXTRA_FLAGS=
+
+GIT_VERSION:=$(shell git rev-parse HEAD)
+GIT_VERSION_SHORT:=$(shell git rev-parse --short HEAD)
+GIT_DIRTY:=$(shell git diff --no-ext-diff --quiet || echo "*")
+GIT_ADDED:=$(shell git diff --no-ext-diff --cached --quiet || echo "+")
+
+_ARDUINO_ROOT_DIR=/tmp/arduino/
+_ARDUINO_PROJECT_DIR=$(_ARDUINO_ROOT_DIR)/$(SKETCH_NAME)
+_ARDUINO_BUILD_PATH=$(_ARDUINO_PROJECT_DIR)/build/$(SKETCH_NAME)
+_ARDUINO_OUTPUT_DIR=$(ROOT_DIR)/output
+
+.PHONY: all spiffs compile upload monitor clean
 
 all: spiffs compile upload
 
@@ -16,14 +32,20 @@ all: spiffs compile upload
 # The arduino-cli executable runs in an FHS environment, but it downloads its own Python that does not work inside the `nix develop` shell.
 # So we override it with a working Python from our nix development shell.
 compile:
-	arduino-cli compile -v \
-	--profile $(PROFILE) \
-	--build-property "compiler.cpp.extra_flags=\"-DGIT_VERSION=\"$(shell git rev-parse HEAD)\"\"" \
-	--build-property "runtime.tools.python3.path=$(_ARDUINO_PYTHON3)/bin"
+	arduino-cli compile "$(VERBOSE)" \
+	--fqbn "$(FQBN)" \
+	--build-property "compiler.cpp.extra_flags=$(COMPILER_CPP_EXTRA_FLAGS) -DSKETCH_NAME=\"$(SKETCH_NAME)\" -DGIT_VERSION=\"$(GIT_VERSION)$(GIT_DIRTY)$(GIT_ADDED)\" -DGIT_VERSION_SHORT=\"$(GIT_VERSION_SHORT)$(GIT_DIRTY)$(GIT_ADDED)\" $(EXTRA_FLAGS)" \
+        --build-property "commonhfile.fqfn=$(_ARDUINO_BUILD_PATH)/CommonHFile.h" \
+	--build-path "$(_ARDUINO_BUILD_PATH)" \
+	--output-dir "$(_ARDUINO_OUTPUT_DIR)"
 
 upload:
 	[ -e $(SERIAL) ] && \
-	arduino-cli upload -v -p $(SERIAL) --profile $(PROFILE) || \
+	arduino-cli upload \
+	--fqbn "$(FQBN)" \
+	--input-dir "$(_ARDUINO_OUTPUT_DIR)" \
+        -p "$(SERIAL)" \
+        -v || \
 	{ echo "==> $(SERIAL) is not available"; exit 1; }
 
 # Monitor the serial output.
@@ -43,7 +65,7 @@ SPIFFS_END=0x3FA000
 # echo "ibase=16;${SPIFFS_END//0x/}-${SPIFFS_START//0x/}" | bc -q
 SPIFFS_SIZE=2072576
 DATADIR=$(CURDIR)/data/
-SPIFFS_IMG=/tmp/$(PROFILE).spiffs
+SPIFFS_IMG=/tmp/wordclock.spiffs
 
 spiffs:
 	@echo Building SPIFFS image
@@ -51,3 +73,6 @@ spiffs:
 	mkspiffs -l            --page $(SPIFFS_PAGESIZE) --block $(SPIFFS_BLOCKSIZE) -s $(SPIFFS_SIZE) $(SPIFFS_IMG)
 	esptool.py --chip esp8266 --baud 921600 --port $(SERIAL) erase_flash
 	esptool.py --chip esp8266 --baud 921600 --port $(SERIAL) --before default_reset --after hard_reset write_flash --flash_size detect --flash_mode dio $(SPIFFS_START) $(SPIFFS_IMG)
+clean:
+	rm -rf "$(_ARDUINO_OUTPUT_DIR)"
+	rm -rf "$(_ARDUINO_BUILD_PATH)"
