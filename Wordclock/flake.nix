@@ -45,6 +45,20 @@
         let
           name = "Wordclock";
 
+          mkspiffs-overlay = final: prev: {
+            mkspiffs = prev.mkspiffs.overrideAttrs (
+              finalAttrs: prevAttrs: {
+                buildInputs =
+                  prevAttrs.buildInputs or [ ]
+                  ++ lib.optionals (final.stdenv.hostPlatform.isDarwin) [
+                    final.apple-sdk_11
+                    (final.darwinMinVersionHook "11.0")
+                  ];
+                meta.platforms = lib.platforms.all;
+              }
+            );
+          };
+
           overlays = [
             arduino-nix.overlay
             # https://downloads.arduino.cc/packages/package_index.json
@@ -53,6 +67,7 @@
             (arduino-nix.mkArduinoPackageOverlay ./package-index/package_esp8266com_index.json)
             # https://downloads.arduino.cc/libraries/library_index.json
             (arduino-nix.mkArduinoLibraryOverlay ./package-index/library_index.json)
+            mkspiffs-overlay
           ];
 
           pkgs = import nixpkgs { inherit system overlays; };
