@@ -20,23 +20,20 @@ GIT_ADDED:=$(shell git diff --no-ext-diff --cached --quiet || echo "+")
 
 _ARDUINO_ROOT_DIR=/tmp/arduino/
 _ARDUINO_PROJECT_DIR=$(_ARDUINO_ROOT_DIR)/$(SKETCH_NAME)
-_ARDUINO_BUILD_PATH=$(_ARDUINO_PROJECT_DIR)/build/$(SKETCH_NAME)
-_ARDUINO_OUTPUT_DIR=$(ROOT_DIR)/output
+_ARDUINO_BUILD_DIR=$(_ARDUINO_PROJECT_DIR)/build/$(SKETCH_NAME)
+_ARDUINO_OUTPUT_DIR=$(_ARDUINO_PROJECT_DIR)/bin/$(SKETCH_NAME)
 
 .PHONY: all spiffs compile upload monitor clean
 
 all: spiffs compile upload
 
-# Optional: provide a git hash so the running program can report what version it was built from.
-#
-# The arduino-cli executable runs in an FHS environment, but it downloads its own Python that does not work inside the `nix develop` shell.
-# So we override it with a working Python from our nix development shell.
+# commonhfile.fqfn needs to be set because it needs to be in a writable directory
 compile:
 	arduino-cli compile "$(VERBOSE)" \
 	--fqbn "$(FQBN)" \
 	--build-property "compiler.cpp.extra_flags=$(COMPILER_CPP_EXTRA_FLAGS) -DSKETCH_NAME=\"$(SKETCH_NAME)\" -DGIT_VERSION=\"$(GIT_VERSION)$(GIT_DIRTY)$(GIT_ADDED)\" -DGIT_VERSION_SHORT=\"$(GIT_VERSION_SHORT)$(GIT_DIRTY)$(GIT_ADDED)\" $(EXTRA_FLAGS)" \
-        --build-property "commonhfile.fqfn=$(_ARDUINO_BUILD_PATH)/CommonHFile.h" \
-	--build-path "$(_ARDUINO_BUILD_PATH)" \
+	--build-property "commonhfile.fqfn=$(_ARDUINO_BUILD_DIR)/CommonHFile.h" \
+	--build-path "$(_ARDUINO_BUILD_DIR)" \
 	--output-dir "$(_ARDUINO_OUTPUT_DIR)"
 
 upload:
@@ -75,4 +72,4 @@ spiffs:
 	esptool.py --chip esp8266 --baud 921600 --port $(SERIAL) --before default_reset --after hard_reset write_flash --flash_size detect --flash_mode dio $(SPIFFS_START) $(SPIFFS_IMG)
 clean:
 	rm -rf "$(_ARDUINO_OUTPUT_DIR)"
-	rm -rf "$(_ARDUINO_BUILD_PATH)"
+	rm -rf "$(_ARDUINO_BUILD_DIR)"
