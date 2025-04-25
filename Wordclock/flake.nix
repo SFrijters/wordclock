@@ -1,12 +1,16 @@
 {
   description = "Flake template for Arduino projects";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/24.11";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/24.11";
+    arduino-nix.url = "github:bouk/arduino-nix";
+  };
 
   outputs =
     {
       self,
       nixpkgs,
+      arduino-nix,
       ...
     }:
     let
@@ -39,12 +43,42 @@
         let
           name = "Wordclock";
 
-          pkgs = import nixpkgs { inherit system; };
+          overlays = [
+            arduino-nix.overlay
+            # https://downloads.arduino.cc/packages/package_index.json
+            (arduino-nix.mkArduinoPackageOverlay ./package-index/package_index.json)
+            # https://arduino.esp8266.com/stable/package_esp8266com_index.json
+            (arduino-nix.mkArduinoPackageOverlay ./package-index/package_esp8266com_index.json)
+            # https://downloads.arduino.cc/libraries/library_index.json
+            (arduino-nix.mkArduinoLibraryOverlay ./package-index/library_index.json)
+          ];
+
+          pkgs = import nixpkgs { inherit system overlays; };
 
           python = pkgs.python3;
 
           pythonWithExtras = python.buildEnv.override {
             extraLibs = [ ];
+          };
+
+              gnumake-wrapper = pkgs.writeShellApplication {
+                name = "make";
+                text = ''
+                  ${lib.getExe pkgs.gnumake} _ARDUINO_PROJECT_DIR="''${_ARDUINO_PROJECT_DIR:-/tmp/arduino}" --file=${./Makefile} "$@"
+                '';
+              };
+
+
+         arduino-cli-with-packages = pkgs.wrapArduinoCLI {
+           libraries = with pkgs.arduinoLibraries; [
+             FastLED."3.6.0"
+             Time."1.6.1"
+             ArduinoJson."5.13.2"
+           ];
+
+            packages = [
+              pkgs.arduinoPackages.platforms.esp8266.esp8266."3.1.2"
+            ];
           };
 
           # The variables starting with underscores are custom,
@@ -66,20 +100,14 @@
                 export _ARDUINO_PROJECT_DIR="''${HOME}/.arduino/${name}"
               fi
             fi
-            # The variables below are respected by arduino-cli
-            export ARDUINO_DIRECTORIES_USER=$_ARDUINO_PROJECT_DIR
-            export ARDUINO_DIRECTORIES_DATA=$_ARDUINO_PROJECT_DIR
-            export ARDUINO_DIRECTORIES_DOWNLOADS=$_ARDUINO_PROJECT_DIR/staging
-            # This is used to override Python when invoking the Makefile
-            export _ARDUINO_PYTHON3=${python}
           '';
 
           devShellArduinoCLI = pkgs.mkShell {
             name = "${name}-dev";
             packages = with pkgs; [
-              arduino-cli # For compiling and uploading the sketch
+              arduino-cli-with-packages # For compiling and uploading the sketch
               git # For embedding a version hash into the sketch
-              gnumake # To provide somewhat standardized commands to compile, upload, and monitor the sketch
+              gnumake-wrapper # To provide somewhat standardized commands to compile, upload, and monitor the sketch
               picocom # To monitor the serial output
               pythonWithExtras # So that the python3 wrapper of the esp8266 downloaded code can find a working python interpreter on the path
               esptool
@@ -87,8 +115,10 @@
             ];
             shellHook = ''
               ${arduinoShellHookPaths}
-              2>&1 echo "==> Using arduino-cli version $(arduino-cli version)"
-              2>&1 echo "    Storing arduino-cli data for this project in ''${_ARDUINO_PROJECT_DIR}"
+              if [ ! ''${DEVSHELL_VERBOSE:-1} = 0 ]; then
+                >&2 echo "==> Using arduino-cli version $(arduino-cli version)"
+                >&2 echo "    Storing arduino-cli data for this project in ''${_ARDUINO_PROJECT_DIR}"
+              fi
             '';
           };
 
