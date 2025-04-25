@@ -11,7 +11,7 @@ VERBOSE=
 ROOT_DIR:=$(shell pwd)
 SKETCH_NAME:=$(shell basename $(ROOT_DIR))
 
-COMPILER_CPP_EXTRA_FLAGS=
+COMPILER_CPP_EXTRA_FLAGS:=$(shell test -e $(ROOT_DIR)/compiler.cpp.extra_flags && cat $(ROOT_DIR)/compiler.cpp.extra_flags)
 
 GIT_VERSION:=$(shell git rev-parse HEAD)
 GIT_VERSION_SHORT:=$(shell git rev-parse --short HEAD)
@@ -31,7 +31,7 @@ all: spiffs compile upload
 compile:
 	arduino-cli compile "$(VERBOSE)" \
 	--fqbn "$(FQBN)" \
-	--build-property "compiler.cpp.extra_flags=$(COMPILER_CPP_EXTRA_FLAGS) -DSKETCH_NAME=\"$(SKETCH_NAME)\" -DGIT_VERSION=\"$(GIT_VERSION)$(GIT_DIRTY)$(GIT_ADDED)\" -DGIT_VERSION_SHORT=\"$(GIT_VERSION_SHORT)$(GIT_DIRTY)$(GIT_ADDED)\" $(EXTRA_FLAGS)" \
+	--build-property "compiler.cpp.extra_flags=$(COMPILER_CPP_EXTRA_FLAGS) -DSKETCH_NAME=\"$(SKETCH_NAME)\" -DGIT_VERSION=\"$(GIT_VERSION)$(GIT_DIRTY)$(GIT_ADDED)\" -DGIT_VERSION_SHORT=\"$(GIT_VERSION_SHORT)$(GIT_DIRTY)$(GIT_ADDED)\"" \
 	--build-property "commonhfile.fqfn=$(_ARDUINO_BUILD_DIR)/CommonHFile.h" \
 	--build-path "$(_ARDUINO_BUILD_DIR)" \
 	--output-dir "$(_ARDUINO_OUTPUT_DIR)"
