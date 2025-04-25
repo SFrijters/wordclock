@@ -63,20 +63,19 @@
             extraLibs = [ ];
           };
 
-              gnumake-wrapper = pkgs.writeShellApplication {
-                name = "make";
-                text = ''
-                  ${lib.getExe pkgs.gnumake} _ARDUINO_PROJECT_DIR="''${_ARDUINO_PROJECT_DIR:-/tmp/arduino}" --file=${./Makefile} "$@"
-                '';
-              };
+          gnumake-wrapper = pkgs.writeShellApplication {
+            name = "make";
+            text = ''
+              ${lib.getExe pkgs.gnumake} _ARDUINO_PROJECT_DIR="''${_ARDUINO_PROJECT_DIR:-/tmp/arduino}" --file=${./Makefile} "$@"
+            '';
+          };
 
-
-         arduino-cli-with-packages = pkgs.wrapArduinoCLI {
-           libraries = with pkgs.arduinoLibraries; [
-             FastLED."3.6.0"
-             Time."1.6.1"
-             ArduinoJson."5.13.2"
-           ];
+          arduino-cli-with-packages = pkgs.wrapArduinoCLI {
+            libraries = with pkgs.arduinoLibraries; [
+              FastLED."3.6.0"
+              Time."1.6.1"
+              ArduinoJson."5.13.2"
+            ];
 
             packages = [
               pkgs.arduinoPackages.platforms.esp8266.esp8266."3.1.2"
