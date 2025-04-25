@@ -1,19 +1,40 @@
 {
   description = "Flake template for Arduino projects";
 
-  inputs = {
-    flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "github:NixOS/nixpkgs/24.11";
-  };
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/24.11";
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      ...
+    }:
+    let
+      inherit (nixpkgs) lib;
+      # Boilerplate to make the rest of the flake more readable
+      # Do not inject system into these attributes
+      flatAttrs = [
+        "overlays"
+        "nixosModules"
+      ];
+      # Inject a system attribute if the attribute is not one of the above
+      injectSystem =
+        system:
+        lib.mapAttrs (name: value: if builtins.elem name flatAttrs then value else { ${system} = value; });
+      # Combine the above for a list of 'systems'
+      forSystems =
+        systems: f:
+        lib.attrsets.foldlAttrs (
+          acc: system: value:
+          lib.attrsets.recursiveUpdate acc (injectSystem system value)
+        ) { } (lib.genAttrs systems f);
+    in
+      forSystems [ "x86_64-linux" "aarch64-linux" ] (
+        system:
       let
         name = "Wordclock";
 
-        pkgs = import nixpkgs {
-          inherit system;
-        };
+        pkgs = import nixpkgs { inherit system; };
 
         python = pkgs.python3;
 
@@ -61,16 +82,14 @@
           ];
           shellHook = ''
             ${arduinoShellHookPaths}
-            echo "==> Using arduino-cli version $(arduino-cli version)"
-            echo "    Storing arduino-cli data for this project in ''${_ARDUINO_PROJECT_DIR}"
+            2>&1 echo "==> Using arduino-cli version $(arduino-cli version)"
+            2>&1 echo "    Storing arduino-cli data for this project in ''${_ARDUINO_PROJECT_DIR}"
           '';
         };
 
       in
-        rec {
-          devShells = {
-            default = devShellArduinoCLI;
-          };
+        {
+          devShells.default = devShellArduinoCLI;
         }
     );
 }
