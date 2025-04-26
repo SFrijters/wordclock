@@ -142,6 +142,8 @@
         {
           devShells.default = devShellArduinoCLI;
 
+          packages.mkspiffs = pkgs.mkspiffs-presets.arduino-esp8266;
+
           formatter =
             lib.warnIf (builtins.hasAttr "nixfmt-tree" pkgs) "Replace nixfmt-rfc-style with nix-tree"
               pkgs.nixfmt-rfc-style;
