@@ -56,9 +56,9 @@
                   ];
                 postPatch =
                   prevAttrs.postPatch or ""
-                  + lib.optionalString (final.stdenv.hostPlatform.isDarwin && final.stdenv.hostPlatform.isAarch64) ''
+                  + ''
                     substituteInPlace Makefile \
-                      --replace-fail "-arch i386 -arch x86_64" "-arch aarch64"
+                      --replace-fail "-arch i386 -arch x86_64" ""
                   '';
                 meta.platforms = lib.platforms.all;
               }
