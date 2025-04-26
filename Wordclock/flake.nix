@@ -113,6 +113,7 @@
               git # For embedding a version hash into the sketch
               gnumake-wrapper # To provide somewhat standardized commands to compile, upload, and monitor the sketch
               picocom # To monitor the serial output
+              python3
               esptool
               mkspiffs-presets.arduino-esp8266
             ];
@@ -131,6 +132,7 @@
               arduino-cli-with-packages
               git
               gnumake-wrapper
+              python3
               mkspiffs-presets.arduino-esp8266
             ];
           };
