@@ -55,6 +55,10 @@ jobs:
         nix flake metadata ./Wordclock
         nix flake show ./Wordclock
 
+    - name: Compile mkspiffs
+      run: |
+        nix build ./Wordclock#mkspiffs
+
     - name: Compile example codes
       run: |
         nix develop ./Wordclock --command make VERBOSE= _ARDUINO_ROOT_DIR=/tmp/arduino compile -C ./Wordclock
