@@ -76,7 +76,7 @@
           gnumake-wrapper = pkgs.writeShellApplication {
             name = "make";
             text = ''
-              ${lib.getExe pkgs.gnumake} _ARDUINO_PROJECT_DIR="''${_ARDUINO_PROJECT_DIR:-/tmp/arduino}" --file=${./Makefile} "$@"
+              ${lib.getExe pkgs.gnumake} --file=${./Makefile} "$@"
             '';
           };
 
@@ -92,9 +92,8 @@
             ];
           };
 
-          # Store everything that arduino-cli downloads in a directory
-          # reserved for this project, and following the XDG specification,
-          # if the variable is available.
+          # The variables starting with underscores are custom and not used by arduino-cli directly
+          # The _ARDUINO_PROJECT_DIR variable is passed to arduino-cli via the Makefile.
           arduinoShellHookPaths = ''
             if [ -z "''${_ARDUINO_PROJECT_DIR:-}" ]; then
               if [ -n "''${_ARDUINO_ROOT_DIR:-}" ]; then

@@ -68,6 +68,7 @@ spiffs: spiffs-compile spiffs-upload
 
 spiffs-compile:
 	@echo Building SPIFFS image
+	mkdir -p "$(_ARDUINO_BUILD_DIR)"
 	mkspiffs -c $(DATADIR) --page $(SPIFFS_PAGESIZE) --block $(SPIFFS_BLOCKSIZE) -s $(SPIFFS_SIZE) $(SPIFFS_IMG)
 	mkspiffs -l            --page $(SPIFFS_PAGESIZE) --block $(SPIFFS_BLOCKSIZE) -s $(SPIFFS_SIZE) $(SPIFFS_IMG)
 
