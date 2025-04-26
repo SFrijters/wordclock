@@ -54,6 +54,12 @@
                     final.apple-sdk_11
                     (final.darwinMinVersionHook "11.0")
                   ];
+                postPatch =
+                  prevAttrs.postPatch or ""
+                  + lib.optionalString (final.stdenv.hostPlatform.isDarwin && final.stdenv.hostPlatform.isAarch64) ''
+                    substituteInPlace Makefile \
+                      --replace-fail "-arch i386 -arch x86_64" "-arch aarch64"
+                  '';
                 meta.platforms = lib.platforms.all;
               }
             );
