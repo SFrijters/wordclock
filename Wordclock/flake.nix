@@ -48,12 +48,6 @@
           mkspiffs-overlay = final: prev: {
             mkspiffs = prev.mkspiffs.overrideAttrs (
               finalAttrs: prevAttrs: {
-                buildInputs =
-                  prevAttrs.buildInputs or [ ]
-                  ++ lib.optionals (final.stdenv.hostPlatform.isDarwin) [
-                    final.apple-sdk_11
-                    (final.darwinMinVersionHook "11.0")
-                  ];
                 postPatch =
                   prevAttrs.postPatch or ""
                   + ''
