@@ -29,7 +29,7 @@ jobs:
         fi
 
         # Get the path to arduino-cli wrapper script that the devshell uses
-        arduino_cli_wrapped_path="$(nix develop ./Wordclock --command which arduino-cli)"
+        arduino_cli_wrapped_path="$(nix develop ./Wordclock#ci --command which arduino-cli)"
         arduino_cli_path="$(tail -n1 "${arduino_cli_wrapped_path}" | cut -d '"' -f 2)"
 
         # Get the path to the bwrap executable that the arduino-cli wrapper uses by grepping for the command inside the wrapper script
@@ -55,13 +55,9 @@ jobs:
         nix flake metadata ./Wordclock
         nix flake show ./Wordclock
 
-    - name: Compile mkspiffs
-      run: |
-        nix build ./Wordclock#mkspiffs
-
     - name: Compile example codes
       run: |
-        nix develop ./Wordclock --command make VERBOSE= _ARDUINO_ROOT_DIR=/tmp/arduino spiffs-compile compile -C ./Wordclock
+        nix develop ./Wordclock#ci --command make VERBOSE= _ARDUINO_ROOT_DIR=/tmp/arduino spiffs-compile compile -C ./Wordclock
 
     - name: Formatter check
       run: |
