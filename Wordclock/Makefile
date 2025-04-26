@@ -62,12 +62,17 @@ SPIFFS_END=0x3FA000
 # echo "ibase=16;${SPIFFS_END//0x/}-${SPIFFS_START//0x/}" | bc -q
 SPIFFS_SIZE=2072576
 DATADIR=$(CURDIR)/data/
-SPIFFS_IMG=/tmp/wordclock.spiffs
+SPIFFS_IMG=$(_ARDUINO_BUILD_DIR)/wordclock.spiffs
 
-spiffs:
+spiffs: spiffs-compile spiffs-upload
+
+spiffs-compile:
 	@echo Building SPIFFS image
+	mkdir -p "$(_ARDUINO_BUILD_DIR)"
 	mkspiffs -c $(DATADIR) --page $(SPIFFS_PAGESIZE) --block $(SPIFFS_BLOCKSIZE) -s $(SPIFFS_SIZE) $(SPIFFS_IMG)
 	mkspiffs -l            --page $(SPIFFS_PAGESIZE) --block $(SPIFFS_BLOCKSIZE) -s $(SPIFFS_SIZE) $(SPIFFS_IMG)
+
+spiffs-upload:
 	esptool.py --chip esp8266 --baud 921600 --port $(SERIAL) erase_flash
 	esptool.py --chip esp8266 --baud 921600 --port $(SERIAL) --before default_reset --after hard_reset write_flash --flash_size detect --flash_mode dio $(SPIFFS_START) $(SPIFFS_IMG)
 clean:

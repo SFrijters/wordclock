@@ -45,6 +45,21 @@
         let
           name = "Wordclock";
 
+          # Fix Darwin build
+          mkspiffs-overlay = final: prev: {
+            mkspiffs = prev.mkspiffs.overrideAttrs (
+              finalAttrs: prevAttrs: {
+                postPatch =
+                  prevAttrs.postPatch or ""
+                  + ''
+                    substituteInPlace Makefile \
+                      --replace-fail "-arch i386 -arch x86_64" ""
+                  '';
+                meta.platforms = lib.platforms.all;
+              }
+            );
+          };
+
           overlays = [
             arduino-nix.overlay
             # https://downloads.arduino.cc/packages/package_index.json
@@ -53,20 +68,15 @@
             (arduino-nix.mkArduinoPackageOverlay ./package-index/package_esp8266com_index.json)
             # https://downloads.arduino.cc/libraries/library_index.json
             (arduino-nix.mkArduinoLibraryOverlay ./package-index/library_index.json)
+            mkspiffs-overlay
           ];
 
           pkgs = import nixpkgs { inherit system overlays; };
 
-          python = pkgs.python3;
-
-          pythonWithExtras = python.buildEnv.override {
-            extraLibs = [ ];
-          };
-
           gnumake-wrapper = pkgs.writeShellApplication {
             name = "make";
             text = ''
-              ${lib.getExe pkgs.gnumake} _ARDUINO_PROJECT_DIR="''${_ARDUINO_PROJECT_DIR:-/tmp/arduino}" --file=${./Makefile} "$@"
+              ${lib.getExe pkgs.gnumake} --file=${./Makefile} "$@"
             '';
           };
 
@@ -82,15 +92,8 @@
             ];
           };
 
-          # The variables starting with underscores are custom,
-          # the ones starting with ARDUINO are used by arduino-cli.
-          # See https://arduino.github.io/arduino-cli/0.33/configuration/ .
-
-          # Store everything that arduino-cli downloads in a directory
-          # reserved for this project, and following the XDG specification,
-          # if the variable is available.
-
-          # The _ARDUINO_PYTHON3 variable is passed to arduino-cli via the Makefile.
+          # The variables starting with underscores are custom and not used by arduino-cli directly
+          # The _ARDUINO_PROJECT_DIR variable is passed to arduino-cli via the Makefile.
           arduinoShellHookPaths = ''
             if [ -z "''${_ARDUINO_PROJECT_DIR:-}" ]; then
               if [ -n "''${_ARDUINO_ROOT_DIR:-}" ]; then
@@ -110,7 +113,7 @@
               git # For embedding a version hash into the sketch
               gnumake-wrapper # To provide somewhat standardized commands to compile, upload, and monitor the sketch
               picocom # To monitor the serial output
-              pythonWithExtras # So that the python3 wrapper of the esp8266 downloaded code can find a working python interpreter on the path
+              python3
               esptool
               mkspiffs-presets.arduino-esp8266
             ];
@@ -123,9 +126,22 @@
             '';
           };
 
+          devShellArduinoCLI-CI = pkgs.mkShell {
+            name = "${name}-ci";
+            packages = with pkgs; [
+              arduino-cli-with-packages
+              git
+              gnumake-wrapper
+              python3
+              mkspiffs-presets.arduino-esp8266
+            ];
+          };
         in
         {
-          devShells.default = devShellArduinoCLI;
+          devShells = {
+            default = devShellArduinoCLI;
+            ci = devShellArduinoCLI-CI;
+          };
 
           formatter =
             lib.warnIf (builtins.hasAttr "nixfmt-tree" pkgs) "Replace nixfmt-rfc-style with nix-tree"
