@@ -61,7 +61,7 @@ jobs:
 
     - name: Compile example codes
       run: |
-        nix develop ./Wordclock --command make VERBOSE= _ARDUINO_ROOT_DIR=/tmp/arduino compile -C ./Wordclock
+        nix develop ./Wordclock --command make VERBOSE= _ARDUINO_ROOT_DIR=/tmp/arduino spiffs-compile compile -C ./Wordclock
 
     - name: Formatter check
       run: |
