@@ -61,5 +61,5 @@ jobs:
 
     - name: Formatter check
       run: |
-        pushd ./Wordclock && nix fmt . && popd
+        pushd ./Wordclock && nix fmt && popd
         git diff --exit-code
