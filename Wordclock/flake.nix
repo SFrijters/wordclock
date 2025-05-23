@@ -127,9 +127,7 @@
             ci = devShellArduinoCLI-CI;
           };
 
-          formatter =
-            lib.warnIf (builtins.hasAttr "nixfmt-tree" pkgs) "Replace nixfmt-rfc-style with nix-tree"
-              pkgs.nixfmt-rfc-style;
+          formatter = pkgs.nixfmt-tree;
         }
       );
 }
