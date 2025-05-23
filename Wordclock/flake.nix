@@ -2,7 +2,7 @@
   description = "Flake template for Arduino projects";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     arduino-nix.url = "github:bouk/arduino-nix";
   };
 
@@ -45,21 +45,6 @@
         let
           name = "Wordclock";
 
-          # Fix Darwin build
-          mkspiffs-overlay = final: prev: {
-            mkspiffs = prev.mkspiffs.overrideAttrs (
-              finalAttrs: prevAttrs: {
-                postPatch =
-                  prevAttrs.postPatch or ""
-                  + ''
-                    substituteInPlace Makefile \
-                      --replace-fail "-arch i386 -arch x86_64" ""
-                  '';
-                meta.platforms = lib.platforms.all;
-              }
-            );
-          };
-
           overlays = [
             arduino-nix.overlay
             # https://downloads.arduino.cc/packages/package_index.json
@@ -68,7 +53,6 @@
             (arduino-nix.mkArduinoPackageOverlay ./package-index/package_esp8266com_index.json)
             # https://downloads.arduino.cc/libraries/library_index.json
             (arduino-nix.mkArduinoLibraryOverlay ./package-index/library_index.json)
-            mkspiffs-overlay
           ];
 
           pkgs = import nixpkgs { inherit system overlays; };
