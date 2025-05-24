@@ -90,7 +90,7 @@
             fi
           '';
 
-          devShellArduinoCLI = pkgs.mkShell {
+          devShellArduinoCLI = pkgs.mkShellNoCC {
             name = "${name}-dev";
             packages = with pkgs; [
               arduino-cli-with-packages # For compiling and uploading the sketch
@@ -110,7 +110,7 @@
             '';
           };
 
-          devShellArduinoCLI-CI = pkgs.mkShell {
+          devShellArduinoCLI-CI = pkgs.mkShellNoCC {
             name = "${name}-ci";
             packages = with pkgs; [
               arduino-cli-with-packages
