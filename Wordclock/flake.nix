@@ -4,6 +4,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     arduino-nix.url = "github:bouk/arduino-nix";
+    arduino-indexes = {
+      url = "github:bouk/arduino-indexes";
+      flake = false;
+    };
   };
 
   outputs =
@@ -11,6 +15,7 @@
       self,
       nixpkgs,
       arduino-nix,
+      arduino-indexes,
       ...
     }:
     let
@@ -48,11 +53,11 @@
           overlays = [
             arduino-nix.overlay
             # https://downloads.arduino.cc/packages/package_index.json
-            (arduino-nix.mkArduinoPackageOverlay ./package-index/package_index.json)
+            (arduino-nix.mkArduinoPackageOverlay "${arduino-indexes}/index/package_index.json")
             # https://arduino.esp8266.com/stable/package_esp8266com_index.json
-            (arduino-nix.mkArduinoPackageOverlay ./package-index/package_esp8266com_index.json)
+            (arduino-nix.mkArduinoPackageOverlay "${arduino-indexes}/index/package_esp8266com_index.json")
             # https://downloads.arduino.cc/libraries/library_index.json
-            (arduino-nix.mkArduinoLibraryOverlay ./package-index/library_index.json)
+            (arduino-nix.mkArduinoLibraryOverlay "${arduino-indexes}/index/library_index.json")
           ];
 
           pkgs = import nixpkgs { inherit system overlays; };
