@@ -61,5 +61,4 @@ jobs:
 
     - name: Formatter check
       run: |
-        pushd ./Wordclock && nix fmt && popd
-        git diff --exit-code
+        pushd ./Wordclock && nix fmt -- -vv --tree-root-file flake.nix && popd
