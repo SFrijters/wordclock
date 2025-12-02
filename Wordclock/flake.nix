@@ -2,7 +2,7 @@
   description = "Flake template for Arduino projects";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     arduino-nix.url = "github:bouk/arduino-nix";
     arduino-indexes = {
       url = "github:bouk/arduino-indexes";
