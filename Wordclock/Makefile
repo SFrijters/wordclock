@@ -73,8 +73,8 @@ spiffs-compile:
 	mkspiffs -l            --page $(SPIFFS_PAGESIZE) --block $(SPIFFS_BLOCKSIZE) -s $(SPIFFS_SIZE) $(SPIFFS_IMG)
 
 spiffs-upload:
-	esptool.py --chip esp8266 --baud 921600 --port $(SERIAL) erase_flash
-	esptool.py --chip esp8266 --baud 921600 --port $(SERIAL) --before default_reset --after hard_reset write_flash --flash_size detect --flash_mode dio $(SPIFFS_START) $(SPIFFS_IMG)
+	esptool --chip esp8266 --baud 921600 --port $(SERIAL) erase-flash
+	esptool --chip esp8266 --baud 921600 --port $(SERIAL) --before default-reset --after hard-reset write-flash --flash-size detect --flash-mode dio $(SPIFFS_START) $(SPIFFS_IMG)
 clean:
 	rm -rf "$(_ARDUINO_OUTPUT_DIR)"
 	rm -rf "$(_ARDUINO_BUILD_DIR)"
