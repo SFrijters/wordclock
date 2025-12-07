@@ -56,14 +56,14 @@ upload: check-permissions
 monitor: check-permissions
 	picocom -b $(BAUDRATE) --imap lfcrlf $(SERIAL)
 
-# From arduino-cli compile --profile $(PROFILE) --show-properties
-# arduino-cli compile -v --profile wordclock --show-properties | grep "^build.spiffs_blocksize" | cut -d= -f2
+# From arduino-cli compile --fqbn $(FQBN) --show-properties
+# arduino-cli compile -v --fqbn $(FQBN) --show-properties | grep "^build.spiffs_blocksize" | cut -d= -f2
 SPIFFS_BLOCKSIZE=8192
-# arduino-cli compile -v --profile wordclock --show-properties | grep "^build.spiffs_pagesize" | cut -d= -f2
+# arduino-cli compile -v --fqbn $(FQBN) --show-properties | grep "^build.spiffs_pagesize" | cut -d= -f2
 SPIFFS_PAGESIZE=256
-# arduino-cli compile -v --profile wordclock --show-properties | grep "^build.spiffs_start" | cut -d= -f2
+# arduino-cli compile -v --fqbn $(FQBN) --show-properties | grep "^build.spiffs_start" | cut -d= -f2
 SPIFFS_START=0x200000
-# arduino-cli compile -v --profile wordclock --show-properties | grep "^build.spiffs_end" | cut -d= -f2
+# arduino-cli compile -v --fqbn $(FQBN) --show-properties | grep "^build.spiffs_end" | cut -d= -f2
 SPIFFS_END=0x3FA000
 # echo "ibase=16;${SPIFFS_END//0x/}-${SPIFFS_START//0x/}" | bc -q
 SPIFFS_SIZE=2072576
