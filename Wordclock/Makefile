@@ -81,6 +81,7 @@ spiffs-compile:
 spiffs-upload: check-permissions
 	esptool --chip esp8266 --baud 921600 --port $(SERIAL) erase-flash
 	esptool --chip esp8266 --baud 921600 --port $(SERIAL) --before default-reset --after hard-reset write-flash --flash-size detect --flash-mode dio $(SPIFFS_START) $(SPIFFS_IMG)
+
 clean:
 	rm -rf "$(_ARDUINO_OUTPUT_DIR)"
 	rm -rf "$(_ARDUINO_BUILD_DIR)"
