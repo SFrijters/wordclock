@@ -23,9 +23,15 @@ _ARDUINO_PROJECT_DIR=$(_ARDUINO_ROOT_DIR)/$(SKETCH_NAME)
 _ARDUINO_BUILD_DIR=$(_ARDUINO_PROJECT_DIR)/build/$(SKETCH_NAME)
 _ARDUINO_OUTPUT_DIR=$(_ARDUINO_PROJECT_DIR)/bin/$(SKETCH_NAME)
 
-.PHONY: all spiffs compile upload monitor clean
+.PHONY: all check-permissions spiffs compile upload monitor clean
 
 all: spiffs compile upload
+
+check-permissions:
+	@echo Checking if $(SERIAL) exists
+	test -e $(SERIAL)
+	@echo Checking permissions for $(SERIAL)
+	groups | grep $$(stat $(SERIAL) --format '%G') || test $$(stat $(SERIAL) --format '%a' | cut -b 3) = 6
 
 # commonhfile.fqfn needs to be set because it needs to be in a writable directory
 compile:
@@ -36,7 +42,7 @@ compile:
 	--build-path "$(_ARDUINO_BUILD_DIR)" \
 	--output-dir "$(_ARDUINO_OUTPUT_DIR)"
 
-upload:
+upload: check-permissions
 	[ -e $(SERIAL) ] && \
 	arduino-cli upload \
 	--fqbn "$(FQBN)" \
@@ -47,7 +53,7 @@ upload:
 
 # Monitor the serial output.
 # The --imap option maps '\n' to '\r\n' so newlines are newlines.
-monitor:
+monitor: check-permissions
 	picocom -b $(BAUDRATE) --imap lfcrlf $(SERIAL)
 
 # From arduino-cli compile --profile $(PROFILE) --show-properties
@@ -72,7 +78,7 @@ spiffs-compile:
 	mkspiffs -c $(DATADIR) --page $(SPIFFS_PAGESIZE) --block $(SPIFFS_BLOCKSIZE) -s $(SPIFFS_SIZE) $(SPIFFS_IMG)
 	mkspiffs -l            --page $(SPIFFS_PAGESIZE) --block $(SPIFFS_BLOCKSIZE) -s $(SPIFFS_SIZE) $(SPIFFS_IMG)
 
-spiffs-upload:
+spiffs-upload: check-permissions
 	esptool --chip esp8266 --baud 921600 --port $(SERIAL) erase-flash
 	esptool --chip esp8266 --baud 921600 --port $(SERIAL) --before default-reset --after hard-reset write-flash --flash-size detect --flash-mode dio $(SPIFFS_START) $(SPIFFS_IMG)
 clean:
