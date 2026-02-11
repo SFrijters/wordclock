@@ -10,6 +10,12 @@
 #define LDR_LIGHT       200
 #define LDR_READ_DELAY  1000
 
+#ifndef DEBUG_WIFI_LED
+#define DEBUG_WIFI_LED 0
+#endif
+#define WIFI_STATUS_LED 93 // V top right
+#define NTP_STATUS_LED 74 // G top right
+
 CRGB leds[NUM_LEDS];
 CRGB targetColors[NUM_LEDS];
 long lastLedUpdate;
@@ -217,16 +223,53 @@ void ledShowTestColor() {
   FastLED.show(ledBrightness());
 }
 
-void ledShowNoWifiStatus() {
-  if ((millis() - lastLedUpdate) > LED_UPDATE_TIME) {
-    // Serial.println("ledShowNoWifiStatus");
-    lastLedUpdate = millis();
+void ledSetWifiStatus() {
+  const wl_status_t status = WiFi.status();
+  if (wifiIsAccessPointActive()) { // purple
+    leds[WIFI_STATUS_LED] = CRGB(128, 0, 128);
+  }
+  else if (status == WL_NO_SHIELD) { // magenta
+    leds[WIFI_STATUS_LED] = CRGB(255, 0, 255);
+  }
+  else if (status == WL_IDLE_STATUS) { // off
+    leds[WIFI_STATUS_LED] = CRGB::Black;
+  }
+  else if (status == WL_NO_SSID_AVAIL) { // blue
+    leds[WIFI_STATUS_LED] = CRGB(0, 0, 255);
+  }
+  else if (status == WL_SCAN_COMPLETED) { // off
+    leds[WIFI_STATUS_LED] = CRGB::Black;
+  }
+  else if (status == WL_CONNECTED) { // off (or green)
+#if DEBUG_WIFI_LED
+    leds[WIFI_STATUS_LED] = CRGB(0, 255, 0);
+#else
+    leds[WIFI_STATUS_LED] = CRGB::Black;
+#endif
+  }
+  else if (status == WL_CONNECT_FAILED) { // red
+    leds[WIFI_STATUS_LED] = CRGB(255, 0, 0);
+  }
+  else if (status == WL_CONNECTION_LOST) { // yellow
+    leds[WIFI_STATUS_LED] = CRGB(255, 255, 0);
+  }
+  else if (status == WL_WRONG_PASSWORD) { // blue
+    leds[WIFI_STATUS_LED] = CRGB(0, 0, 255);
+  }
+  else if (status == WL_DISCONNECTED) { // yellow
+    leds[WIFI_STATUS_LED] = CRGB(255, 255, 0);
+  }
+  else {
+    leds[WIFI_STATUS_LED] = CRGB(255, 255, 255);
+  }
+}
 
-    for(int i = 0; i < NUM_LEDS; i++) {
-      leds[i] = CRGB::Black;
-    }
-    leds[3] = CRGB::Blue;
-    FastLED.show(ledBrightness());
+void ledSetNtpStatus() {
+  const bool validNtpTime = timeStatus() != timeNotSet;
+  if (validNtpTime) {
+    leds[NTP_STATUS_LED] = CRGB::Black;
+  } else { // red
+    leds[NTP_STATUS_LED] = CRGB(255, 0, 0);
   }
 }
 
@@ -254,27 +297,22 @@ void ledLoop() {
     ldrValue = analogRead(LDR_PIN);
   }
 
-  bool isLedTestActive = ledTestTime > current;
-  bool validNtpTime = timeStatus() != timeNotSet;
-
   if ((current - ledRandomTime) > LED_RAINBOW_TIME) {
     ledRandomTime = current;
     ledRandomHue++;
   }
 
-  switch(ledState) {
-    case 0: ledScrollIntro(); break;
-    case 1:
-      if (isLedTestActive) {
-        ledShowTestColor();
-      } else if (wifiIsAccessPointActive()) {
-        ledShowNoWifiStatus();
-      } else if (!validNtpTime) {
-        ledShowNoNTPStatus();
-      } else {
-        ledShowClockface();
-        ledFadeToAssignedColors();
-      }
-      break;
+  if (ledState) {
+    const bool isLedTestActive = ledTestTime > current;
+    if (isLedTestActive) {
+      ledShowTestColor();
+    } else {
+      ledSetWifiStatus();
+      ledSetNtpStatus();
+      ledShowClockface();
+      ledFadeToAssignedColors();
+    }
+  } else {
+    ledScrollIntro();
   }
 }
