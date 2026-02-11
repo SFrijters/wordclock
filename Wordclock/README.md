@@ -10,7 +10,7 @@
     * `make upload`: Upload the sketch.
 
 * (optional) Run `make monitor` to attach a serial monitor. Detach using `[C-a] [C-x]`.
-* (optional) Change the default hostname by changing `char hostname[] = "woordklok";` in `Configuration.ino`.
+* (optional) Change the default hostname by providing `HOSTNAME="<desired hostname>"` to make.
 
 ## Choosing clock settings
 

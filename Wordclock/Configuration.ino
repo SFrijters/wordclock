@@ -1,5 +1,9 @@
 #include <EEPROM.h>
 
+#ifndef HOSTNAME
+#define HOSTNAME "woordklok"
+#endif
+
 void configurationSetup() {
   Serial.print("Configuration consists of ");
   Serial.print(sizeof(Configuration));
@@ -79,7 +83,7 @@ void loadDefaultConfiguration() {
   char ntpServer[] = "nl.pool.ntp.org";
   strncpy(config.ntp_server, ntpServer, sizeof(ntpServer));
 
-  char hostname[] = "woordklok";
+  char hostname[] = HOSTNAME;
   strncpy(config.hostname, hostname, sizeof(hostname));
 
   config.ledMode = single;

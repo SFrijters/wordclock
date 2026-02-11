@@ -8,6 +8,8 @@ FQBN=esp8266:esp8266:d1_mini
 
 VERBOSE=
 
+HOSTNAME=woordklok
+
 ROOT_DIR:=$(shell pwd)
 SKETCH_NAME:=$(shell basename $(ROOT_DIR))
 
@@ -37,7 +39,7 @@ check-permissions:
 compile:
 	arduino-cli compile "$(VERBOSE)" \
 	--fqbn "$(FQBN)" \
-	--build-property "compiler.cpp.extra_flags=$(COMPILER_CPP_EXTRA_FLAGS) -DSKETCH_NAME=\"$(SKETCH_NAME)\" -DGIT_VERSION=\"$(GIT_VERSION)$(GIT_DIRTY)$(GIT_ADDED)\" -DGIT_VERSION_SHORT=\"$(GIT_VERSION_SHORT)$(GIT_DIRTY)$(GIT_ADDED)\"" \
+	--build-property "compiler.cpp.extra_flags=$(COMPILER_CPP_EXTRA_FLAGS) -DSKETCH_NAME=\"$(SKETCH_NAME)\" -DGIT_VERSION=\"$(GIT_VERSION)$(GIT_DIRTY)$(GIT_ADDED)\" -DGIT_VERSION_SHORT=\"$(GIT_VERSION_SHORT)$(GIT_DIRTY)$(GIT_ADDED)\" -DHOSTNAME=\"$(HOSTNAME)\"" \
 	--build-property "commonhfile.fqfn=$(_ARDUINO_BUILD_DIR)/CommonHFile.h" \
 	--build-path "$(_ARDUINO_BUILD_DIR)" \
 	--output-dir "$(_ARDUINO_OUTPUT_DIR)"
